@@ -1,4 +1,5 @@
-import random, math
+#!/usr/local/bin/python3
+import select, sys, math
 
 class Point():
     def __init__(self, x, y):
@@ -6,7 +7,7 @@ class Point():
         self.y = y
 
     def __repr__(self):
-        return f"({self.x},{self.y})"
+        return f"({self.x}, {self.y})"
 
 def distance(p1, p2):
     return math.sqrt((p1.x - p2.x) ** 2 + (p1.y - p2.y) ** 2)
@@ -24,17 +25,17 @@ def closest_pair_brute_force(points):
 # return index of median of three
 def median_of_three(lst, left, right):
     # determine index of middle element
-    middle = left + right // 2
+    middle = (left + right) // 2
     # get value of first, middle and last elements
     a = lst[left]
     b = lst[middle]
     c = lst[right]
     # return index of a median element
-    if b <= a <= c:
+    if b <= a <= c or c <= a <= b:
         return left
-    elif a <= b <= c:
+    elif a <= b <= c or c <= b <= a:
         return middle
-    elif a <= c <= b:
+    elif a <= c <= b or b <= c <= a:
         return right
 
 def partition(lst, left, right, pivot_index):
@@ -109,7 +110,56 @@ def closest_pair(points):
                 break
     return d
 
+def exit_program(reason):
+    if reason == 'format':
+        print('Incorrectly formatted input\n')
+    exit(0)
+
+# credit: https://stackoverflow.com/questions/3410976/how-to-round-a-number-to-significant-figures-in-python
+def signif(x, digits=6):
+    if x == 0 or not math.isfinite(x):
+        return x
+    digits -= math.ceil(math.log10(abs(x)))
+    return round(x, digits)
+
+# credit: https://stackoverflow.com/questions/38282697/how-can-i-remove-0-of-float-numbers
+def format_number(num):
+  if num % 1 == 0:
+    return int(num)
+  else:
+    return num
+
 if __name__ == '__main__':
-    points = [Point(3, 4), Point(3, 5), Point(4, 6), Point(5, 5), Point(6, 6)]
-    print(closest_pair(points))
+
+    n = 0
+    points = []
+    try:
+        for i, line in enumerate(sys.stdin):
+            if i == 0:
+                n = int(line)
+            else:
+                try:
+                    # python does not use the plus symbol for scientific notation
+                    line = line.replace('+', '')
+                    line = line.split(' ')
+                    points.append(Point(float(line[0]), float(line[1])))
+
+                except (AttributeError, IndexError, ValueError) as e:
+                    # print(e)
+                    exit_program('format')
+
+    except (UnicodeDecodeError, ValueError) as e:
+        # print(e)
+        exit_program('format')
+
+    if n < 2 or len(points) != n:
+        exit_program('format')
+
+
+    d = closest_pair(points)
+    print(format_number(signif(d, 9)))
+    # print(f'{float(f"{d:.9g}"):g}')
+    # print('{:g}'.format(float('{:.{p}g}'.format(d, p=9))))
+    # d = '%s' % float('%.9g' % d)
+
 
