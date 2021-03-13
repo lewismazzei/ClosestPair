@@ -1,5 +1,6 @@
 #!/usr/local/bin/python3
-import select, sys, math
+import select, sys, math, random, time
+import matplotlib.pyplot as plt
 
 class Point():
     def __init__(self, x, y):
@@ -9,6 +10,7 @@ class Point():
     def __repr__(self):
         return f"({self.x}, {self.y})"
 
+# calculate euclidian distance between two points
 def distance(p1, p2):
     return math.sqrt((p1.x - p2.x) ** 2 + (p1.y - p2.y) ** 2)
 
@@ -38,6 +40,7 @@ def median_of_three(lst, left, right):
     elif a <= c <= b or b <= c <= a:
         return right
 
+# partition a list using a provided pivot
 def partition(lst, left, right, pivot_index):
     # get value of pivot
     pivot_value = lst[pivot_index]
@@ -82,6 +85,7 @@ def quickselect(lst, left, right, k):
         # recurse with elements to the right of the partition
         return quickselect(lst, partition_index + 1, right, k)
 
+# return the closest pair out of a set of points
 def closest_pair(points):
     # base case: brute force
     if len(points) <= 3:
@@ -110,6 +114,7 @@ def closest_pair(points):
                 break
     return d
 
+# exit program gracefully on erroneous input
 def exit_program(reason):
     if reason == 'format':
         print('Incorrectly formatted input\n')
@@ -129,8 +134,12 @@ def format_number(num):
   else:
     return num
 
-if __name__ == '__main__':
+# return random point
+def random_point():
+    return Point(random.random() * sys.maxsize, random.random() * sys.maxsize)
 
+# read input from file
+def read_input():
     n = 0
     points = []
     try:
@@ -155,11 +164,79 @@ if __name__ == '__main__':
     if n < 2 or len(points) != n:
         exit_program('format')
 
+    return points
 
+# run program once and print solution
+def run_program(points):
     d = closest_pair(points)
     print(format_number(signif(d, 9)))
-    # print(f'{float(f"{d:.9g}"):g}')
-    # print('{:g}'.format(float('{:.{p}g}'.format(d, p=9))))
-    # d = '%s' % float('%.9g' % d)
 
+# run program multiple times for a range of n, record times for each
+def run_experiment(max_n, test='random'):
+    with open(f'../experiments/output-{test}-{max_n}.csv', 'w') as file:
+        # file.write(f'n,time\n')
+        x = []
+        y = []
+        for n in range(2, max_n + 1):
+            if n % 100 == 0:
+                print(n)
+            for _ in range(10):
+                points = [random_point() for p in range(n)]
+                if test == 'random':
+                    time_started = time.process_time()
+                    closest_pair(points)
+                    time_elapsed = time.process_time_ns() - time_started
+                if test == 'worst-case':
+                    points = sorted(points, key=lambda p: [p.y, p.x])
+                    time_started = time.process_time()
+                    closest_pair(points)
+                    time_elapsed = time.process_time_ns() - time_started
+                x.append(n)
+                y.append(time_elapsed)
+                file.write(f'{n},{time_elapsed}\n')
+
+# plot n against time on a graph
+def graph_results(filepath):
+    x = []; y = []
+    with open(filepath) as file:
+        for line in file:
+            line = line.replace('\n', '').split(',')
+            x.append(float(line[0]))
+            y.append(float(line[1]))
+
+        plt.plot(x, y)
+        plt.show()
+
+# modified version to simulate worst case
+def modified_quickselect(lst, left, right, k):
+    if left == right:
+        return lst[left]
+
+    # pick worst pivot for sorted list
+    pivot_index = left
+    partition_index = partition(lst, left, right, pivot_index)
+    if k == partition_index:
+        return lst[partition_index]
+    elif k < partition_index:
+        return quickselect(lst, left, partition_index - 1, k)
+    else:
+        return quickselect(lst, partition_index + 1, right, k)
+
+def analyse_results(filepath):
+    with open(filepath) as file:
+        for line in file:
+            line = line.replace('\n', '').split(',')
+
+if __name__ == '__main__':
+    # run program with points from an input file
+    # run_program(read_input())
+
+    # run experiment - max_n, 'random' or 'worst-case' (i.e. sorted points plus first-element pivot)
+    run_experiment(2000, 'worst-case')
+
+    # analyse results
+    # analyse_results('../experiments/output-worst-case.csv')
+
+    # graph results
+    graph_results('../experiments/output-worst-case-2000.csv')
 
