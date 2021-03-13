@@ -1,6 +1,6 @@
-#!/usr/local/bin/python3
+#!/bin/env python3
 import select, sys, math, random, time
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 
 class Point():
     def __init__(self, x, y):
@@ -204,8 +204,8 @@ def graph_results(filepath):
             x.append(float(line[0]))
             y.append(float(line[1]))
 
-        plt.plot(x, y)
-        plt.show()
+        # plt.plot(x, y)
+        # plt.show()
 
 # modified version to simulate worst case
 def modified_quickselect(lst, left, right, k):
@@ -229,14 +229,14 @@ def analyse_results(filepath):
 
 if __name__ == '__main__':
     # run program with points from an input file
-    # run_program(read_input())
+    run_program(read_input())
 
     # run experiment - max_n, 'random' or 'worst-case' (i.e. sorted points plus first-element pivot)
-    run_experiment(2000, 'worst-case')
+    # run_experiment(2000, 'worst-case')
 
     # analyse results
     # analyse_results('../experiments/output-worst-case.csv')
 
     # graph results
-    graph_results('../experiments/output-worst-case-2000.csv')
+    # graph_results('../experiments/output-worst-case-2000.csv')
 
