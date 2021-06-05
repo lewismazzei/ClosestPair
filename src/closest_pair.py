@@ -154,11 +154,9 @@ def read_input():
                     points.append(Point(float(line[0]), float(line[1])))
 
                 except (AttributeError, IndexError, ValueError) as e:
-                    # print(e)
                     exit_program('format')
 
     except (UnicodeDecodeError, ValueError) as e:
-        # print(e)
         exit_program('format')
 
     if n < 2 or len(points) != n:
