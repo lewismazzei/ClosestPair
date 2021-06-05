@@ -1,4 +1,4 @@
-cp1: cp1.py
+closest_pair: closest_pair.py
 	@printf '#!/bin/env python3\n' >$@
-	@cp cp1.py cp1
-	@chmod +x cp1
+	@cp closest_pair.py closest_pair
+	@chmod +x closest_pair
