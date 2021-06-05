@@ -1,6 +1,4 @@
-#!/bin/env python3
 import select, sys, math, random, time
-# import matplotlib.pyplot as plt
 
 class Point():
     def __init__(self, x, y):
@@ -142,22 +140,23 @@ def random_point():
 def read_input():
     n = 0
     points = []
-    try:
-        for i, line in enumerate(sys.stdin):
-            if i == 0:
-                n = int(line)
-            else:
-                try:
-                    # python does not use the plus symbol for scientific notation
-                    line = line.replace('+', '')
-                    line = line.split(' ')
-                    points.append(Point(float(line[0]), float(line[1])))
+    with open(sys.argv[1]) as input_file:
+        try:
+            for i, line in enumerate(input_file):
+                if i == 0:
+                    n = int(line)
+                else:
+                    try:
+                        # python does not use the plus symbol for scientific notation
+                        line = line.replace('+', '')
+                        line = line.split(' ')
+                        points.append(Point(float(line[0]), float(line[1])))
 
-                except (AttributeError, IndexError, ValueError) as e:
-                    exit_program('format')
+                    except (AttributeError, IndexError, ValueError) as e:
+                        exit_program('format')
 
-    except (UnicodeDecodeError, ValueError) as e:
-        exit_program('format')
+        except (UnicodeDecodeError, ValueError) as e:
+            exit_program('format')
 
     if n < 2 or len(points) != n:
         exit_program('format')
@@ -169,72 +168,11 @@ def run_program(points):
     d = closest_pair(points)
     print(format_number(signif(d, 9)))
 
-# run program multiple times for a range of n, record times for each
-def run_experiment(max_n, test='random'):
-    with open(f'../experiments/output-{test}-{max_n}.csv', 'w') as file:
-        # file.write(f'n,time\n')
-        x = []
-        y = []
-        for n in range(2, max_n + 1):
-            if n % 100 == 0:
-                print(n)
-            for _ in range(10):
-                points = [random_point() for p in range(n)]
-                if test == 'random':
-                    time_started = time.process_time()
-                    closest_pair(points)
-                    time_elapsed = time.process_time_ns() - time_started
-                if test == 'worst-case':
-                    points = sorted(points, key=lambda p: [p.y, p.x])
-                    time_started = time.process_time()
-                    closest_pair(points)
-                    time_elapsed = time.process_time_ns() - time_started
-                x.append(n)
-                y.append(time_elapsed)
-                file.write(f'{n},{time_elapsed}\n')
-
-# plot n against time on a graph
-def graph_results(filepath):
-    x = []; y = []
-    with open(filepath) as file:
-        for line in file:
-            line = line.replace('\n', '').split(',')
-            x.append(float(line[0]))
-            y.append(float(line[1]))
-
-        # plt.plot(x, y)
-        # plt.show()
-
-# modified version to simulate worst case
-def modified_quickselect(lst, left, right, k):
-    if left == right:
-        return lst[left]
-
-    # pick worst pivot for sorted list
-    pivot_index = left
-    partition_index = partition(lst, left, right, pivot_index)
-    if k == partition_index:
-        return lst[partition_index]
-    elif k < partition_index:
-        return quickselect(lst, left, partition_index - 1, k)
-    else:
-        return quickselect(lst, partition_index + 1, right, k)
-
-def analyse_results(filepath):
-    with open(filepath) as file:
-        for line in file:
-            line = line.replace('\n', '').split(',')
-
 if __name__ == '__main__':
-    # run program with points from an input file
-    run_program(read_input())
-
-    # run experiment - max_n, 'random' or 'worst-case' (i.e. sorted points plus first-element pivot)
-    # run_experiment(2000, 'worst-case')
-
-    # analyse results
-    # analyse_results('../experiments/output-worst-case.csv')
-
-    # graph results
-    # graph_results('../experiments/output-worst-case-2000.csv')
+    # get points from input file
+    points = read_input()
+    # find distance between closest pair
+    d = closest_pair(points)
+    # print distance
+    print(format_number(signif(d, 9)))
 
