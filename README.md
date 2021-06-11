@@ -24,5 +24,6 @@ Solves the [closest pair problem](https://en.wikipedia.org/wiki/Closest_pair_of_
 ```
 
 ## Run
-
-`python3 closest_pair.py <input_file_path>`
+```
+python3 closest_pair.py <input_file_path>
+```
